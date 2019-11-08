@@ -26,8 +26,11 @@ import 'package:process/process.dart';
 
 import 'common.dart';
 
-final Generator kNoColorTerminalPlatform = () => FakePlatform.fromPlatform(const LocalPlatform())..stdoutSupportsAnsi = false;
-
+final Generator kNoColorTerminalPlatform = () {
+  return FakePlatform.fromPlatform(
+      const LocalPlatform()
+  )..stdoutSupportsAnsi = false;
+};
 class MockApplicationPackageStore extends ApplicationPackageStore {
   MockApplicationPackageStore() : super(
     android: AndroidApk(
@@ -36,7 +39,7 @@ class MockApplicationPackageStore extends ApplicationPackageStore {
       versionCode: 1,
       launchActivity: 'io.flutter.android.mock.MockActivity',
     ),
-    iOS: BuildableIOSApp(MockIosProject())
+      iOS: BuildableIOSApp(MockIosProject(), MockIosProject.bundleId)
   );
 }
 
@@ -180,6 +183,45 @@ class MockProcessManager extends Mock implements ProcessManager {
     commands = command;
     return Future<Process>.value(processFactory(command));
   }
+}
+
+/// A function that generates a process factory that gives processes that fail
+/// a given number of times before succeeding. The returned processes will
+/// fail after a delay if one is supplied.
+ProcessFactory flakyProcessFactory({
+  int flakes,
+  bool Function(List<String> command) filter,
+  Duration delay,
+  Stream<List<int>> Function() stdout,
+  Stream<List<int>> Function() stderr,
+}) {
+  int flakesLeft = flakes;
+  stdout ??= () => const Stream<List<int>>.empty();
+  stderr ??= () => const Stream<List<int>>.empty();
+  return (List<String> command) {
+    if (filter != null && !filter(command)) {
+      return MockProcess();
+    }
+    if (flakesLeft == 0) {
+      return MockProcess(
+        exitCode: Future<int>.value(0),
+        stdout: stdout(),
+        stderr: stderr(),
+      );
+    }
+    flakesLeft = flakesLeft - 1;
+    Future<int> exitFuture;
+    if (delay == null) {
+      exitFuture = Future<int>.value(-9);
+    } else {
+      exitFuture = Future<int>.delayed(delay, () => Future<int>.value(-9));
+    }
+    return MockProcess(
+      exitCode: exitFuture,
+      stdout: stdout(),
+      stderr: stderr(),
+    );
+  };
 }
 
 /// A process that exits successfully with no output and ignores all input.
@@ -450,8 +492,10 @@ class MockPollingDeviceDiscovery extends PollingDeviceDiscovery {
 }
 
 class MockIosProject extends Mock implements IosProject {
+  static const String bundleId = 'com.example.test';
+
   @override
-  String get productBundleIdentifier => 'com.example.test';
+  Future<String> get productBundleIdentifier async => bundleId;
 
   @override
   String get hostAppBundleName => 'Runner.app';

@@ -310,7 +310,7 @@ void main() {
     testUsingContext('returns null when there is no ios or .ios directory', () async {
       fs.file('pubspec.yaml').createSync();
       fs.file('.packages').createSync();
-      final BuildableIOSApp iosApp = IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
+      final BuildableIOSApp iosApp = await IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
 
       expect(iosApp, null);
     }, overrides: overrides);
@@ -319,7 +319,7 @@ void main() {
       fs.file('pubspec.yaml').createSync();
       fs.file('.packages').createSync();
       fs.file('ios/FooBar.xcodeproj').createSync(recursive: true);
-      final BuildableIOSApp iosApp = IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
+      final BuildableIOSApp iosApp = await IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
 
       expect(iosApp, null);
     }, overrides: overrides);
@@ -328,7 +328,7 @@ void main() {
       fs.file('pubspec.yaml').createSync();
       fs.file('.packages').createSync();
       fs.file('ios/Runner.xcodeproj').createSync(recursive: true);
-      final BuildableIOSApp iosApp = IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
+      final BuildableIOSApp iosApp = await IOSApp.fromIosProject(FlutterProject.fromDirectory(fs.currentDirectory).ios);
 
       expect(iosApp, null);
     }, overrides: overrides);

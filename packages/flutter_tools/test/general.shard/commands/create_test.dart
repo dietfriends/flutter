@@ -697,7 +697,7 @@ void main() {
     await runner.run(<String>['create', '--template=app', '--no-pub', '--org', 'com.example', tmpProjectDir]);
     FlutterProject project = FlutterProject.fromDirectory(fs.directory(tmpProjectDir));
     expect(
-        project.ios.productBundleIdentifier,
+        await project.ios.productBundleIdentifier,
         'com.example.helloFlutter',
     );
     expect(
@@ -709,7 +709,7 @@ void main() {
     await runner.run(<String>['create', '--template=app', '--no-pub', '--org', 'abc^*.1#@', tmpProjectDir]);
     project = FlutterProject.fromDirectory(fs.directory(tmpProjectDir));
     expect(
-        project.ios.productBundleIdentifier,
+      await project.ios.productBundleIdentifier,
         'abc.1.testAbc',
     );
     expect(
@@ -721,7 +721,7 @@ void main() {
     await runner.run(<String>['create', '--template=app', '--no-pub', '--org', '#+^%', tmpProjectDir]);
     project = FlutterProject.fromDirectory(fs.directory(tmpProjectDir));
     expect(
-        project.ios.productBundleIdentifier,
+      await project.ios.productBundleIdentifier,
         'flutterProject.untitled',
     );
     expect(
@@ -846,7 +846,7 @@ void main() {
     await _createProject(projectDir, <String>[], <String>[]);
     final FlutterProject project = FlutterProject.fromDirectory(projectDir);
     expect(
-      project.ios.productBundleIdentifier,
+      await project.ios.productBundleIdentifier,
       'com.bar.foo.flutterProject',
     );
   }, timeout: allowForRemotePubInvocation);
@@ -886,7 +886,7 @@ void main() {
     await _createProject(projectDir, <String>['--no-pub'], <String>[]);
     final FlutterProject project = FlutterProject.fromDirectory(projectDir);
     expect(
-      project.ios.productBundleIdentifier,
+      await project.ios.productBundleIdentifier,
       'com.bar.foo.flutterProject',
     );
   }, timeout: allowForCreateFlutterProject);
@@ -919,7 +919,7 @@ void main() {
     );
     final FlutterProject project = FlutterProject.fromDirectory(projectDir);
     expect(
-      project.example.ios.productBundleIdentifier,
+      await project.example.ios.productBundleIdentifier,
       'com.bar.foo.flutterProjectExample',
     );
   }, timeout: allowForCreateFlutterProject);

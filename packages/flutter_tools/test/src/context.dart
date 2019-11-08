@@ -331,7 +331,11 @@ class FakeXcodeProjectInterpreter implements XcodeProjectInterpreter {
   int get minorVersion => 2;
 
   @override
-  Map<String, String> getBuildSettings(String projectPath, String target) {
+  Future<Map<String, String>> getBuildSettings(
+      String projectPath,
+      String target, {
+        Duration timeout = const Duration(minutes: 1),
+      }) async {
     return <String, String>{};
   }
 
@@ -342,6 +346,15 @@ class FakeXcodeProjectInterpreter implements XcodeProjectInterpreter {
       <String>['Debug', 'Release'],
       <String>['Runner'],
     );
+  }
+
+  @override
+  Future<Map<String, String>> getBuildSettingsAsync(
+      String projectPath,
+      String target, {
+        Duration timeout = const Duration(minutes: 1),
+      }) async {
+    return <String, String>{};
   }
 }
 

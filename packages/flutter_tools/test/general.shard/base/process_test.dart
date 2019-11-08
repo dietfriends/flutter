@@ -12,7 +12,7 @@ import 'package:process/process.dart';
 
 import '../../src/common.dart';
 import '../../src/context.dart';
-import '../../src/mocks.dart' show MockProcess, MockProcessManager;
+import '../../src/mocks.dart' show MockProcess, MockProcessManager, flakyProcessFactory;
 
 void main() {
   group('process exceptions', () {
@@ -88,6 +88,52 @@ void main() {
       ProcessManager: () => mockProcessManager,
       OutputPreferences: () => OutputPreferences(wrapText: true, wrapColumn: 40),
       Platform: () => FakePlatform.fromPlatform(const LocalPlatform())..stdoutSupportsAnsi = false,
+    });
+  });
+
+  group('runAsync timeout and retry', () {
+    const Duration delay = Duration(seconds: 2);
+    MockProcessManager flakyProcessManager;
+
+    setUp(() {
+      // MockProcessManager has an implementation of start() that returns the
+      // result of processFactory.
+      flakyProcessManager = MockProcessManager();
+      flakyProcessManager.processFactory = flakyProcessFactory(
+        flakes: 1,
+        delay: delay,
+      );
+    });
+
+    testUsingContext('flaky process fails without retry', () async {
+      final RunResult result = await runAsync(
+        <String>['dummy'],
+        timeout: delay + const Duration(seconds: 1),
+      );
+      expect(result.exitCode, -9);
+    }, overrides: <Type, Generator>{
+      ProcessManager: () => flakyProcessManager,
+    });
+
+    testUsingContext('flaky process succeeds with retry', () async {
+      final RunResult result = await runAsync(
+        <String>['dummy'],
+        timeout: delay - const Duration(milliseconds: 500),
+        timeoutRetries: 1,
+      );
+      expect(result.exitCode, 0);
+    }, overrides: <Type, Generator>{
+      ProcessManager: () => flakyProcessManager,
+    });
+
+    testUsingContext('flaky process generates ProcessException on timeout', () async {
+      expect(() async => await runAsync(
+        <String>['dummy'],
+        timeout: delay - const Duration(milliseconds: 500),
+        timeoutRetries: 0,
+      ), throwsA(isInstanceOf<ProcessException>()));
+    }, overrides: <Type, Generator>{
+      ProcessManager: () => flakyProcessManager,
     });
   });
 }

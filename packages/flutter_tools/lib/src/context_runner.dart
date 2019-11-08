@@ -33,6 +33,7 @@ import 'fuchsia/fuchsia_device.dart' show FuchsiaDeviceTools;
 import 'fuchsia/fuchsia_sdk.dart' show FuchsiaSdk, FuchsiaArtifacts;
 import 'fuchsia/fuchsia_workflow.dart' show FuchsiaWorkflow;
 import 'ios/ios_workflow.dart';
+import 'ios/devices.dart' show IOSDeploy;
 import 'ios/mac.dart';
 import 'ios/simulators.dart';
 import 'ios/xcodeproj.dart';
@@ -91,6 +92,7 @@ Future<T> runInContext<T>(
       GenSnapshot: () => const GenSnapshot(),
       HotRunnerConfig: () => HotRunnerConfig(),
       IMobileDevice: () => IMobileDevice(),
+      IOSDeploy: () => const IOSDeploy(),
       IOSSimulatorUtils: () => IOSSimulatorUtils(),
       IOSWorkflow: () => const IOSWorkflow(),
       KernelCompilerFactory: () => const KernelCompilerFactory(),
